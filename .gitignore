@@ -1,0 +1,31 @@
+# Python/cache
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Local environments
+.venv/
+.venv-codex/
+venv/
+env/
+
+# IDE/local files
+.idea/
+.vscode/
+
+# Large raw data and generated visualizations
+scripts/*.csv
+data/visualization/
+data/*.txt
+data/一些问题记录/
+data/*/HAI_train.csv
+data/*/HAI_test.csv
+data/*/*.png
+
+# Training outputs
+results/
+pretrained/*.pt
+pretrained/*.png
+
+# Keep the best reported lightweight checkpoint
+!pretrained/prior_union_norm_seed6705_best_07-03-09-37-45.pt
