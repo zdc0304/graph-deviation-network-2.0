@@ -1,22 +1,24 @@
-# Prior-Guided GDN for HAI Anomaly Detection
+# Topology-Informed Graph Deviation Network for Industrial Anomaly Detection
 
-This repository is adapted from GDN, the implementation of **Graph Neural Network-Based Anomaly Detection in Multivariate Time Series**. The project was modified for the HAI industrial control dataset and explores whether physical prior knowledge can improve graph-based anomaly detection.
+This repository presents a topology-informed extension of Graph Deviation Network (GDN) for anomaly detection in industrial control systems. The implementation is adapted to the HAI 23.05 dataset and incorporates physical process topology from DCS configuration graphs as prior knowledge for multivariate time-series modeling.
 
-## What Changed
+The objective of this project is to study whether domain knowledge from industrial process topology can improve graph-based anomaly detection beyond purely data-driven sensor-relationship learning.
 
-The original GDN learns a sensor graph only from trainable node embeddings. In this version, the HAI physical topology is injected into the graph learning process.
+## Method Overview
 
-Main additions:
+The original GDN learns sensor dependencies from trainable node embeddings and performs anomaly detection through prediction-error-based graph deviation scoring. This project augments that pipeline with HAI physical-topology information and evaluates several ways of combining prior process knowledge with learned sensor relationships.
 
-- **HAI dataset adaptation**: supports `HAI_train.csv`, `HAI_test.csv`, and HAI sensor lists under `data/<dataset>/`.
-- **Physical prior topology**: parses DCS topology JSON files such as `dcs_1001h.json`, `dcs_1002h.json`, and related HAI topology files.
-- **Prior-enhanced graph learning**: adds `graph_mode` options:
+## Contributions
+
+- **HAI-oriented data pipeline**: supports `HAI_train.csv`, `HAI_test.csv`, and HAI sensor metadata under `data/<dataset>/`.
+- **Physical-topology prior construction**: parses DCS topology JSON files such as `dcs_1001h.json`, `dcs_1002h.json`, and related HAI process-graph files.
+- **Prior-enhanced graph learning**: implements multiple graph construction strategies through `graph_mode`:
   - `learned`: original GDN-style learned top-k graph.
   - `prior`: use the physical prior graph directly.
   - `prior_mask`: select learned top-k neighbors only inside prior candidates.
   - `prior_union`: merge the learned graph with HAI physical-prior edges.
-- **Unified normalization**: fits MinMax scaling on the training set and applies the same scaler to train/test.
-- **Lightweight implementation**: replaces PyG/sklearn/scipy dependencies on the main path with PyTorch/numpy implementations for easier reproduction.
+- **Consistent preprocessing**: fits MinMax scaling on the training set and applies the same transformation to both train and test data.
+- **Dependency-light implementation**: replaces PyG/sklearn/scipy usage on the main path with PyTorch/numpy implementations for easier reproduction.
 
 ## Best Experiment
 
@@ -62,9 +64,9 @@ python main.py \
 
 ## Observations
 
-The improvement from physical prior knowledge is real but limited. Hard prior constraints (`prior` or `prior_mask`) reduce recall because the HAI physical topology is incomplete for anomaly detection. The best result comes from `prior_union`, which keeps the learned data-driven graph and adds physical-prior edges.
+Physical prior knowledge provides a measurable but limited improvement on the HAI setting. Hard prior constraints (`prior` or `prior_mask`) tend to reduce recall, indicating that the available topology is useful but incomplete for anomaly detection. The best result is obtained with `prior_union`, which preserves the data-driven learned graph while adding topology-derived edges.
 
-This suggests that, for HAI, the main bottleneck is not only graph construction. GDN's one-step prediction-error assumption is not fully aligned with short, weak, or multi-condition attacks in this dataset. The dataset also contains challenging properties such as constant training columns, train/test distribution shift, and short attack intervals.
+These results suggest that the main limitation on HAI is not graph construction alone. GDN's one-step prediction-error objective is not fully aligned with short, weak, or multi-condition industrial attacks. The dataset also contains challenging properties such as constant training columns, train/test distribution shift, and short attack intervals.
 
 ## Data Format
 
